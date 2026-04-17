@@ -1,8 +1,17 @@
 import { v4 as uuid } from "uuid";
 import { storage } from "@/services/storage.service";
+import { authService } from "@/services/auth.service";
 import type { Book, CreateBookPayload, ReadingStatus } from "@/types/book";
 
-const BOOKS_KEY = "books";
+function getBooksKey(): string {
+  const user = authService.getStoredUser();
+
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  return `books:${user.id}`;
+}
 
 function resolveBookStatus(
   startedAt: string,
@@ -15,7 +24,7 @@ function resolveBookStatus(
 
 export const booksService = {
   getAll(): Book[] {
-    return storage.get<Book[]>(BOOKS_KEY) ?? [];
+    return storage.get<Book[]>(getBooksKey()) ?? [];
   },
 
   getById(id: string): Book | null {
@@ -35,7 +44,7 @@ export const booksService = {
       updatedAt: now,
     };
 
-    storage.set(BOOKS_KEY, [...books, newBook]);
+    storage.set(getBooksKey(), [...books, newBook]);
     return newBook;
   },
 
@@ -58,19 +67,19 @@ export const booksService = {
       book.id === id ? updatedBook : book
     );
 
-    storage.set(BOOKS_KEY, updatedBooks);
+    storage.set(getBooksKey(), updatedBooks);
     return updatedBook;
   },
 
   delete(id: string): void {
     const books = this.getAll();
     const exists = books.some((book) => book.id === id);
-    
+
     if (!exists) {
       throw new Error("Livro não encontrado.");
     }
-    
+
     const filteredBooks = books.filter((book) => book.id !== id);
-    storage.set(BOOKS_KEY, filteredBooks);
+    storage.set(getBooksKey(), filteredBooks);
   },
 };

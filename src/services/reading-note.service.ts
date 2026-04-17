@@ -1,15 +1,24 @@
 import { v4 as uuid } from "uuid";
 import { storage } from "@/services/storage.service";
+import { authService } from "@/services/auth.service";
 import type {
   ReadingNote,
   CreateReadingNotePayload,
 } from "@/types/reading-note";
 
-const READING_NOTES_KEY = "reading-notes";
+function getReadingNotesKey(): string {
+  const user = authService.getStoredUser();
+
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  return `reading-notes:${user.id}`;
+}
 
 export const readingNotesService = {
   getAll(): ReadingNote[] {
-    return storage.get<ReadingNote[]>(READING_NOTES_KEY) ?? [];
+    return storage.get<ReadingNote[]>(getReadingNotesKey()) ?? [];
   },
 
   getById(id: string): ReadingNote | null {
@@ -33,7 +42,7 @@ export const readingNotesService = {
       updatedAt: now,
     };
 
-    storage.set(READING_NOTES_KEY, [...notes, newNote]);
+    storage.set(getReadingNotesKey(), [...notes, newNote]);
     return newNote;
   },
 
@@ -55,7 +64,7 @@ export const readingNotesService = {
       note.id === id ? updatedNote : note
     );
 
-    storage.set(READING_NOTES_KEY, updatedNotes);
+    storage.set(getReadingNotesKey(), updatedNotes);
     return updatedNote;
   },
 
@@ -68,6 +77,6 @@ export const readingNotesService = {
     }
 
     const filteredNotes = notes.filter((note) => note.id !== id);
-    storage.set(READING_NOTES_KEY, filteredNotes);
+    storage.set(getReadingNotesKey(), filteredNotes);
   },
 };
