@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
+import { Label } from "@/components/atoms/Label";
 import { FormField } from "@/components/molecules/FormField";
 import { TextareaField } from "@/components/molecules/TextareaField";
 import { RatingField } from "@/components/molecules/RatingFIeld";
 import { useBooksStore } from "@/store/book.store";
-import type { CreateBookPayload, Rating } from "@/types/book";
+import { READING_STATUS_OPTIONS } from "@/utils/book";
+import type { CreateBookPayload, Rating, ReadingStatus } from "@/types/book";
 
 type BookFormData = {
   title: string;
@@ -16,6 +18,7 @@ type BookFormData = {
   finishedAt: string;
   rating: string;
   description: string;
+  status: ReadingStatus;
 };
 
 type BookFormProps = {
@@ -30,6 +33,8 @@ type FormErrors = {
   genres?: string;
   totalPages?: string;
   rating?: string;
+  status?: string;
+  finishedAt?: string;
 };
 
 const emptyFormData: BookFormData = {
@@ -40,7 +45,11 @@ const emptyFormData: BookFormData = {
   finishedAt: "",
   rating: "1",
   description: "",
+  status: "não_iniciado",
 };
+
+const selectClasses =
+  "w-full rounded-xl bg-zinc-100 px-4 py-3 text-zinc-900 outline-none ring-1 ring-transparent transition-all duration-200 focus:bg-white focus:ring-violet-200";
 
 export function BookForm({
   mode = "create",
@@ -62,7 +71,7 @@ export function BookForm({
   }, [initialData]);
 
   function handleChange(
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
     const { name, value } = event.target;
 
@@ -92,6 +101,27 @@ export function BookForm({
       newErrors.rating = "A nota deve estar entre 1 e 5.";
     }
 
+    if (!formData.status) {
+      newErrors.status = "Informe o estado da leitura.";
+    }
+
+    if (formData.status === "não_iniciado" && (formData.startedAt || formData.finishedAt)) {
+      newErrors.status = "Livro não iniciado não deve ter data de leitura.";
+    }
+
+    if (formData.status === "lendo" && formData.finishedAt) {
+      newErrors.status = "Livro em leitura não deve ter data final.";
+    }
+
+    if (formData.startedAt && formData.finishedAt) {
+      const startedDate = new Date(formData.startedAt).getTime();
+      const finishedDate = new Date(formData.finishedAt).getTime();
+
+      if (finishedDate < startedDate) {
+        newErrors.finishedAt = "A data final não pode ser anterior à data inicial.";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -108,6 +138,7 @@ export function BookForm({
       finishedAt: formData.finishedAt,
       rating: Number(formData.rating) as Rating,
       description: formData.description.trim(),
+      status: formData.status,
     };
   }
 
@@ -178,7 +209,31 @@ export function BookForm({
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-6 rounded-2xl bg-zinc-50 p-6 md:grid-cols-2">
+        <section className="grid grid-cols-1 gap-6 rounded-2xl bg-zinc-50 p-6 md:grid-cols-3">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="status">Estado da leitura</Label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className={`${selectClasses} bg-white ${
+                errors.status ? "ring-1 ring-red-300 focus:ring-red-300" : ""
+              }`}
+            >
+              {READING_STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.status ? (
+              <p role="alert" className="mt-1 text-sm font-medium text-red-600">
+                {errors.status}
+              </p>
+            ) : null}
+          </div>
+
           <FormField
             id="startedAt"
             name="startedAt"
@@ -196,6 +251,7 @@ export function BookForm({
             type="date"
             value={formData.finishedAt}
             onChange={handleChange}
+            error={errors.finishedAt}
             className="bg-white"
           />
         </section>

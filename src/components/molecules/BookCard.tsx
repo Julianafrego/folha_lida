@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getReadingStatusLabel } from "@/utils/book";
 import type { Book } from "@/types/book";
 
 type BookCardProps = {
@@ -29,7 +30,7 @@ export function BookCard({ book }: BookCardProps) {
         </p>
 
         <p className="mt-1 text-sm text-zinc-600">
-          Status: {book.status}
+          Estado: {getReadingStatusLabel(book.status)}
         </p>
       </article>
     </Link>

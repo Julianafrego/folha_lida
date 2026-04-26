@@ -1,12 +1,14 @@
 import { Input } from "@/components/atoms/Input";
+import { READING_STATUS_OPTIONS } from "@/utils/book";
+import type { ReadingStatus } from "@/types/book";
+
+type StatusFilter = "todos" | ReadingStatus;
 
 type BooksFiltersProps = {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  statusFilter: "todos" | "não_iniciado" | "lendo" | "finalizado";
-  onStatusChange: (
-    value: "todos" | "não_iniciado" | "lendo" | "finalizado"
-  ) => void;
+  statusFilter: StatusFilter;
+  onStatusChange: (value: StatusFilter) => void;
   createdAtOrder: "recentes" | "antigos";
   onCreatedAtOrderChange: (value: "recentes" | "antigos") => void;
   itemsPerPage: 6 | 12 | 24;
@@ -38,21 +40,15 @@ export function BooksFilters({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-3">
         <select
           value={statusFilter}
-          onChange={(event) =>
-            onStatusChange(
-              event.target.value as
-                | "todos"
-                | "não_iniciado"
-                | "lendo"
-                | "finalizado"
-            )
-          }
+          onChange={(event) => onStatusChange(event.target.value as StatusFilter)}
           className={selectClasses}
         >
           <option value="todos">Todos os status</option>
-          <option value="não_iniciado">Não iniciado</option>
-          <option value="lendo">Lendo</option>
-          <option value="finalizado">Finalizado</option>
+          {READING_STATUS_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
 
         <select

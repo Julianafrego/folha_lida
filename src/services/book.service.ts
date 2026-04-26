@@ -13,7 +13,7 @@ function getBooksKey(): string {
   return `books:${user.id}`;
 }
 
-function resolveBookStatus(
+function resolveLegacyBookStatus(
   startedAt: string,
   finishedAt: string
 ): ReadingStatus {
@@ -22,9 +22,17 @@ function resolveBookStatus(
   return "não_iniciado";
 }
 
+function normalizeBook(book: Book): Book {
+  return {
+    ...book,
+    status: book.status ?? resolveLegacyBookStatus(book.startedAt, book.finishedAt),
+  };
+}
+
 export const booksService = {
   getAll(): Book[] {
-    return storage.get<Book[]>(getBooksKey()) ?? [];
+    const books = storage.get<Book[]>(getBooksKey()) ?? [];
+    return books.map(normalizeBook);
   },
 
   getById(id: string): Book | null {
@@ -39,7 +47,6 @@ export const booksService = {
     const newBook: Book = {
       id: uuid(),
       ...data,
-      status: resolveBookStatus(data.startedAt, data.finishedAt),
       createdAt: now,
       updatedAt: now,
     };
@@ -59,7 +66,6 @@ export const booksService = {
     const updatedBook: Book = {
       ...existingBook,
       ...data,
-      status: resolveBookStatus(data.startedAt, data.finishedAt),
       updatedAt: new Date().toISOString(),
     };
 

@@ -30,10 +30,16 @@ export function AppHeader() {
               isActive={pathname === "/crud"}
             />
             <HeaderNavLink
+              href="/shelves"
+              label="Estantes"
+              isActive={pathname === "/shelves"}
+            />
+            <HeaderNavLink
               href="/dashboard"
               label="Dashboard"
               isActive={pathname === "/dashboard"}
             />
+
           </nav>
         </div>
 

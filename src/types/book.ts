@@ -1,4 +1,4 @@
-export type ReadingStatus = "não_iniciado" | "lendo" | "finalizado";
+export type ReadingStatus = "não_iniciado" | "lendo" | "finalizado" | "dropado";
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
@@ -16,7 +16,4 @@ export type Book = {
   updatedAt: string;
 };
 
-export type CreateBookPayload = Omit<
-  Book,
-  "id" | "createdAt" | "updatedAt" | "status"
->;
+export type CreateBookPayload = Omit<Book, "id" | "createdAt" | "updatedAt">;

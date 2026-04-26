@@ -9,6 +9,7 @@ import { BooksFilters } from "@/components/organisms/BookFIlters";
 import { Modal } from "@/components/molecules/Modal";
 import { useBooksStore } from "@/store/book.store";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import type { ReadingStatus } from "@/types/book";
 
 export default function CrudPage() {
   const loadBooks = useBooksStore((state) => state.loadBooks);
@@ -16,16 +17,14 @@ export default function CrudPage() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "todos" | "não_iniciado" | "lendo" | "finalizado"
-  >("todos");
+  const [statusFilter, setStatusFilter] = useState<"todos" | ReadingStatus>("todos");
   const [createdAtOrder, setCreatedAtOrder] = useState<"recentes" | "antigos">(
     "recentes"
   );
   const [itemsPerPage, setItemsPerPage] = useState<6 | 12 | 24>(6);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {isAuthenticated} = useRequireAuth();
+  const { isAuthenticated } = useRequireAuth();
 
   useEffect(() => {
     loadBooks();

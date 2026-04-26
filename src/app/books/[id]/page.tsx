@@ -11,6 +11,7 @@ import { Modal } from "@/components/molecules/Modal";
 import { useBooksStore } from "@/store/book.store";
 import { useReadingNotesStore } from "@/store/reading-note.store";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import Link from "next/link";
 
 export default function BookDetailsPage() {
   const params = useParams();
@@ -129,6 +130,7 @@ export default function BookDetailsPage() {
               finishedAt: book.finishedAt,
               rating: String(book.rating),
               description: book.description,
+              status: book.status,
             }}
             onSuccess={() => {
               loadBooks();

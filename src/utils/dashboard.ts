@@ -21,7 +21,7 @@ export function getDashboardSummary(books: Book[], notes: ReadingNote[]) {
   const totalNotes = notes.length;
 
   const pagesReadThisYear = books.reduce((total, book) => {
-    if (!book.finishedAt) return total;
+    if (book.status !== "finalizado" || !book.finishedAt) return total;
 
     const finishedDate = new Date(book.finishedAt);
 
@@ -95,7 +95,7 @@ export function getFinishedBooksByMonth(books: Book[]): MonthlyChartItem[] {
   const monthCount = new Array(12).fill(0);
 
   books.forEach((book) => {
-    if (!book.finishedAt) return;
+    if (book.status !== "finalizado" || !book.finishedAt) return;
 
     const date = new Date(book.finishedAt);
 
