@@ -2,18 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
 import { FormField } from "@/components/molecules/FormField";
 import { useShelvesStore } from "@/store/shelf.store";
-import { READING_STATUS_OPTIONS } from "@/utils/book";
+import type { Book } from "@/types/book";
 import type { CreateShelfPayload, ShelfFormStatus, ShelfMatchMode } from "@/types/shelf";
 
+import ShelfModeSelector from "@/components/molecules/ShelfModeSelector"
+import BookPicker from "@/components/molecules/BookPicker"
+import ShelfRuleSection from "@/components/molecules/ShelfRuleSection";
+
 type ShelfFormData = {
-  name: string;
-  genres: string;
-  status: ShelfFormStatus;
-  matchMode: ShelfMatchMode;
-};
+  name: string
+  mode: 'manual' | 'rule'   
+  
+  // regra
+  genres: string
+  status: ShelfFormStatus
+  matchMode: ShelfMatchMode
+
+  // manual
+  bookIds: string[]        
+}
 
 type ShelfFormProps = {
   mode?: "create" | "edit";
@@ -21,6 +30,7 @@ type ShelfFormProps = {
   initialData?: ShelfFormData;
   existingGenres?: string[];
   onSuccess?: () => void;
+  books: Book[];
 };
 
 type FormErrors = {
@@ -29,14 +39,13 @@ type FormErrors = {
 };
 
 const emptyFormData: ShelfFormData = {
-  name: "",
-  genres: "",
-  status: "",
-  matchMode: "all",
-};
-
-const selectClasses =
-  "w-full rounded-xl bg-zinc-100 px-4 py-3 text-zinc-900 outline-none ring-1 ring-transparent transition-all duration-200 focus:bg-white focus:ring-violet-200";
+  name: '',
+  mode: 'rule',
+  genres: '',
+  status: '',
+  matchMode: 'all',
+  bookIds: []
+}
 
 export function ShelfForm({
   mode = "create",
@@ -44,7 +53,8 @@ export function ShelfForm({
   initialData,
   existingGenres = [],
   onSuccess,
-}: ShelfFormProps) {
+  books, 
+}: ShelfFormProps){
   const createShelf = useShelvesStore((state) => state.createShelf);
   const updateShelf = useShelvesStore((state) => state.updateShelf);
 
@@ -54,9 +64,20 @@ export function ShelfForm({
   const [formError, setFormError] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
 
+  function normalizeInitialData(data: ShelfFormData): ShelfFormData {
+    return {
+      ...data,
+      mode: data.mode === 'manual' ? 'manual' : 'rule',
+    }
+  }
+
   useEffect(() => {
-    setFormData(initialData ?? emptyFormData);
-  }, [initialData]);
+    if (initialData) {
+      setFormData(normalizeInitialData(initialData))
+    } else {
+      setFormData(emptyFormData)
+    }
+  }, [initialData])
 
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -70,36 +91,57 @@ export function ShelfForm({
   }
 
   function validate() {
-    const newErrors: FormErrors = {};
+    const newErrors: FormErrors = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = "Informe o nome da estante.";
+      newErrors.name = 'Informe o nome da estante.'
     }
 
-    if (!formData.genres.trim() && !formData.status) {
-      newErrors.rules = "Escolha pelo menos um gênero ou um estado.";
+    if (formData.mode === 'rule') {
+      if (!formData.genres.trim() && !formData.status) {
+        newErrors.rules = 'Escolha pelo menos um gênero ou estado.'
+      }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (formData.mode === 'manual') {
+      if (formData.bookIds.length === 0) {
+        newErrors.rules = 'Selecione pelo menos um livro.'
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
+
   function buildPayload(): CreateShelfPayload {
+    if (formData.mode === 'manual') {
+      return {
+        name: formData.name.trim(),
+        mode: 'manual',
+        bookIds: formData.bookIds,
+        rules: [],
+        matchMode: 'all',
+      }
+    }
+
     const genreRules = formData.genres
-      .split(",")
-      .map((genre) => genre.trim())
+      .split(',')
+      .map((g) => g.trim())
       .filter(Boolean)
-      .map((genre) => ({ field: "genre" as const, value: genre }));
+      .map((g) => ({ field: 'genre' as const, value: g }))
 
     const statusRules = formData.status
-      ? [{ field: "status" as const, value: formData.status }]
-      : [];
+      ? [{ field: 'status' as const, value: formData.status }]
+      : []
 
     return {
       name: formData.name.trim(),
+      mode: 'rule',
       matchMode: formData.matchMode,
       rules: [...genreRules, ...statusRules],
-    };
+      bookIds: [],
+    }
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -143,66 +185,38 @@ export function ShelfForm({
         error={errors.name}
       />
 
-      <section className="grid grid-cols-1 gap-6 rounded-2xl bg-zinc-50 p-6 md:grid-cols-2">
-        <div className="flex flex-col space-y-1">
-          <Label htmlFor="genres">Gênero(s)</Label>
-          <input
-            id="genres"
-            name="genres"
-            list="shelf-genres"
-            placeholder="Ex. Drama, Romance"
-            value={formData.genres}
-            onChange={handleChange}
-            className="w-full rounded-xl bg-white px-4 py-3 text-zinc-900 outline-none ring-1 ring-transparent transition-all duration-200 placeholder:text-zinc-400 focus:ring-violet-200"
-          />
-          <datalist id="shelf-genres">
-            {existingGenres.map((genre) => (
-              <option key={genre} value={genre} />
-            ))}
-          </datalist>
-        </div>
 
-        <div className="flex flex-col space-y-1">
-          <Label htmlFor="status">Estado</Label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className={`${selectClasses} bg-white`}
-          >
-            <option value="">Nenhum estado específico</option>
-            {READING_STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <ShelfModeSelector
+        value={formData.mode}
+        onChange={(mode) =>
+          setFormData((prev) => ({
+            ...prev,
+            mode,
+            ...(mode === 'manual'
+              ? { genres: '', status: '' }
+              : { bookIds: [] }),
+          }))
+        }
+      />
 
-        <div className="flex flex-col space-y-1 md:col-span-2">
-          <Label htmlFor="matchMode">Como combinar as regras (Gênero e Estado)</Label>
-          <select
-            id="matchMode"
-            name="matchMode"
-            value={formData.matchMode}
-            onChange={handleChange}
-            className={`${selectClasses} bg-white`}
-          >
-            <option value="all">Cumprir todas as regras</option>
-            <option value="any">Cumprir qualquer regra</option>
-          </select>
-          <p className="text-xs text-zinc-500">
-            Ex.: gênero Drama + estado Finalizado com “todas” mostra apenas dramas finalizados. Com “qualquer”, mostra dramas ou livros finalizados.
-          </p>
-        </div>
+      {formData.mode === 'rule' && (
+        <ShelfRuleSection
+          formData={formData}
+          setFormData={setFormData}
+          existingGenres={existingGenres}
+          errors={errors}
+        />
+      )}
 
-        {errors.rules ? (
-          <p role="alert" className="text-sm font-medium text-red-600 md:col-span-2">
-            {errors.rules}
-          </p>
-        ) : null}
-      </section>
+      {formData.mode === 'manual' && (
+        <BookPicker
+          books={books}
+          selected={formData.bookIds}
+          onChange={(ids) =>
+            setFormData((prev) => ({ ...prev, bookIds: ids }))
+          }
+        />
+      )}
 
       {formError ? (
         <p className="text-sm font-medium text-red-600">{formError}</p>

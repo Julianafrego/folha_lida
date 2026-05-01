@@ -136,6 +136,7 @@ export default function ShelvesPage() {
           maxWidthClass="max-w-3xl"
         >
           <ShelfForm
+            books={books}
             existingGenres={existingGenres}
             onSuccess={() => {
               loadShelves();
@@ -152,26 +153,32 @@ export default function ShelvesPage() {
           onClose={() => setEditingShelfId(null)}
           maxWidthClass="max-w-3xl"
         >
-          <ShelfForm
-            mode="edit"
-            shelfId={editingShelf.id}
-            existingGenres={existingGenres}
-            initialData={{
-              name: editingShelf.name,
-              genres: editingShelf.rules
-                .filter((rule) => rule.field === "genre")
-                .map((rule) => rule.value)
-                .join(", "),
-              status: (editingShelf.rules.find(
-                (rule) => rule.field === "status"
-              )?.value ?? "") as ShelfFormStatus,
-              matchMode: editingShelf.matchMode,
-            }}
-            onSuccess={() => {
-              loadShelves();
-              setEditingShelfId(null);
-            }}
-          />
+        <ShelfForm
+          books={books} 
+          mode="edit"
+          shelfId={editingShelf.id}
+          existingGenres={existingGenres}
+          initialData={{
+            name: editingShelf.name,
+            mode: editingShelf.mode === "manual" ? "manual" : "rule", 
+
+            genres: editingShelf.rules
+              .filter((r) => r.field === "genre")
+              .map((r) => r.value)
+              .join(", "),
+
+            status:
+              (editingShelf.rules.find((r) => r.field === "status")?.value ?? "") as ShelfFormStatus,
+
+            matchMode: editingShelf.matchMode,
+
+            bookIds: editingShelf.bookIds ?? [],
+          }}
+          onSuccess={() => {
+            loadShelves();
+            setEditingShelfId(null);
+          }}
+        />
         </Modal>
       ) : null}
 

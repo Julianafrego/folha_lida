@@ -1,6 +1,7 @@
 import { Input } from "@/components/atoms/Input";
 import { READING_STATUS_OPTIONS } from "@/utils/book";
 import type { ReadingStatus } from "@/types/book";
+import { Select } from "../atoms/Select";
 
 type StatusFilter = "todos" | ReadingStatus;
 
@@ -38,7 +39,7 @@ export function BooksFilters({
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-3">
-        <select
+        <Select
           value={statusFilter}
           onChange={(event) => onStatusChange(event.target.value as StatusFilter)}
           className={selectClasses}
@@ -49,7 +50,7 @@ export function BooksFilters({
               {option.label}
             </option>
           ))}
-        </select>
+        </Select>
 
         <select
           value={createdAtOrder}
@@ -62,7 +63,7 @@ export function BooksFilters({
           <option value="antigos">Criação: mais antigos</option>
         </select>
 
-        <select
+        <Select
           value={itemsPerPage}
           onChange={(event) =>
             onItemsPerPageChange(Number(event.target.value) as 6 | 12 | 24)
@@ -72,7 +73,7 @@ export function BooksFilters({
           <option value={6}>6 por página</option>
           <option value={12}>12 por página</option>
           <option value={24}>24 por página</option>
-        </select>
+        </Select>
       </div>
     </section>
   );

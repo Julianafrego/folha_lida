@@ -16,16 +16,30 @@ function getShelvesKey(): string {
 function normalizeShelf(data: CreateShelfPayload): CreateShelfPayload {
   return {
     name: data.name.trim(),
+    mode: data.mode,
     matchMode: data.matchMode,
+    bookIds: data.bookIds ?? [],
     rules: data.rules
-      .map((rule) => ({
-        field: rule.field,
-        value: rule.value.trim(),
-      }))
-      .filter((rule) => rule.value.length > 0),
+      .map((rule) => {
+        if (rule.field === "genre") {
+          return {
+            field: "genre" as const,
+            value: rule.value.trim(),
+          };
+        }
+
+        return {
+          field: "status" as const,
+          value: rule.value, 
+        };
+      })
+      .filter((rule) =>
+        rule.field === "genre"
+          ? rule.value.length > 0
+          : true
+      ),
   };
 }
-
 export const shelvesService = {
   getAll(): Shelf[] {
     return storage.get<Shelf[]>(getShelvesKey()) ?? [];
@@ -44,10 +58,17 @@ export const shelvesService = {
       throw new Error("Informe o nome da estante.");
     }
 
-    if (normalizedData.rules.length === 0) {
-      throw new Error("Informe pelo menos uma regra para a estante.");
+    if (normalizedData.mode === 'rule') {
+      if (normalizedData.rules.length === 0) {
+        throw new Error("Informe pelo menos uma regra para a estante.");
+      }
     }
 
+    if (normalizedData.mode === 'manual') {
+      if (!normalizedData.bookIds || normalizedData.bookIds.length === 0) {
+        throw new Error("Selecione pelo menos um livro.");
+      }
+    }
     const now = new Date().toISOString();
 
     const newShelf: Shelf = {
@@ -75,8 +96,16 @@ export const shelvesService = {
       throw new Error("Informe o nome da estante.");
     }
 
-    if (normalizedData.rules.length === 0) {
-      throw new Error("Informe pelo menos uma regra para a estante.");
+    if (normalizedData.mode === 'rule') {
+      if (normalizedData.rules.length === 0) {
+        throw new Error("Informe pelo menos uma regra para a estante.");
+      }
+    }
+
+    if (normalizedData.mode === 'manual') {
+      if (!normalizedData.bookIds || normalizedData.bookIds.length === 0) {
+        throw new Error("Selecione pelo menos um livro.");
+      }
     }
 
     const updatedShelf: Shelf = {

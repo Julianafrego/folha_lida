@@ -15,6 +15,13 @@ export function bookMatchesShelfRule(book: Book, rule: ShelfRule): boolean {
 }
 
 export function getBooksByShelf(books: Book[], shelf: Shelf): Book[] {
+
+  if (shelf.mode === "manual") {
+    if (!shelf.bookIds || shelf.bookIds.length === 0) return [];
+      return books.filter((book) => shelf.bookIds!.includes(book.id));
+  }
+
+  
   if (shelf.rules.length === 0) return [];
 
   return books.filter((book) => {
@@ -25,6 +32,7 @@ export function getBooksByShelf(books: Book[], shelf: Shelf): Book[] {
     return shelf.rules.some((rule) => bookMatchesShelfRule(book, rule));
   });
 }
+
 
 export function getShelfRuleLabel(rule: ShelfRule): string {
   if (rule.field === "genre") {
