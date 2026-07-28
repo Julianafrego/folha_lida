@@ -11,13 +11,18 @@ describe("booksService", () => {
     finishedAt: "",
     rating: 5,
     description: "Clássico brasileiro",
+    status: "não_iniciado",
   };
 
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(
+      "auth_user",
+      JSON.stringify({ id: "user-1", name: "Usuário", email: "user@email.com" })
+    );
   });
 
-  it("deve criar livro com status não_iniciado quando não há datas", () => {
+  it("deve criar livro usando o status definido pelo usuário", () => {
     const created = booksService.create(baseBook);
 
     expect(created.id).toBeDefined();
@@ -27,50 +32,56 @@ describe("booksService", () => {
     expect(booksService.getAll()).toHaveLength(1);
   });
 
-  it("deve criar livro com status lendo quando possui startedAt e não possui finishedAt", () => {
+  it("deve permitir livro finalizado sem data final quando o usuário não lembra a data", () => {
     const created = booksService.create({
       ...baseBook,
-      startedAt: "2026-04-01",
-    });
-
-    expect(created.status).toBe("lendo");
-  });
-
-  it("deve criar livro com status finalizado quando possui startedAt e finishedAt", () => {
-    const created = booksService.create({
-      ...baseBook,
-      startedAt: "2026-04-01",
-      finishedAt: "2026-04-10",
+      status: "finalizado",
+      startedAt: "",
+      finishedAt: "",
     });
 
     expect(created.status).toBe("finalizado");
+    expect(created.finishedAt).toBe("");
   });
 
-it("deve atualizar um livro e recalcular o status", () => {
-  const created = booksService.create({
-    title: "Livro A",
-    genres: ["Fantasia"],
-    totalPages: 200,
-    startedAt: "2026-04-01",
-    finishedAt: "",
-    rating: 4,
-    description: "Descrição",
+  it("deve permitir livro dropado com ou sem datas", () => {
+    const created = booksService.create({
+      ...baseBook,
+      status: "dropado",
+      startedAt: "2026-04-01",
+      finishedAt: "",
+    });
+
+    expect(created.status).toBe("dropado");
+    expect(created.startedAt).toBe("2026-04-01");
   });
 
-  const updated = booksService.update(created.id, {
-    title: "Livro A atualizado",
-    genres: ["Fantasia", "Drama"],
-    totalPages: 250,
-    startedAt: "2026-04-01",
-    finishedAt: "2026-04-10",
-    rating: 5,
-    description: "Nova descrição",
-  });
+  it("deve atualizar um livro mantendo o status escolhido no formulário", () => {
+    const created = booksService.create({
+      ...baseBook,
+      title: "Livro A",
+      genres: ["Fantasia"],
+      totalPages: 200,
+      startedAt: "2026-04-01",
+      status: "lendo",
+      description: "Descrição",
+    });
 
-  expect(updated.title).toBe("Livro A atualizado");
-  expect(updated.finishedAt).toBe("2026-04-10");
-  expect(updated.status).toBe("finalizado");
-});
+    const updated = booksService.update(created.id, {
+      title: "Livro A atualizado",
+      genres: ["Fantasia", "Drama"],
+      totalPages: 250,
+      startedAt: "2026-04-01",
+      finishedAt: "2026-04-10",
+      rating: 5,
+      description: "Nova descrição",
+      status: "dropado",
+    });
+
+    expect(updated.title).toBe("Livro A atualizado");
+    expect(updated.finishedAt).toBe("2026-04-10");
+    expect(updated.status).toBe("dropado");
+  });
 
   it("deve deletar um livro existente", () => {
     const created = booksService.create(baseBook);

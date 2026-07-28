@@ -1,4 +1,4 @@
-export type ReadingStatus = "não_iniciado" | "lendo" | "finalizado" | "dropado";
+export type ReadingStatus = "não_iniciado" | "lendo" | "finalizado" | "interrompido" ;
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
