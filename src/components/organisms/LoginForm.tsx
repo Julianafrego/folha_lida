@@ -11,6 +11,7 @@ export function LoginForm() {
   const login = useAuthStore((state) => state.login);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const loadAuth = useAuthStore((state) => state.loadAuth);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +22,10 @@ export function LoginForm() {
   }, [loadAuth]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
+    if (!isLoading && isAuthenticated) {
+      router.replace("/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
   const handleSubmit: React.ComponentProps<"form">["onSubmit"] = (event) => {
     event.preventDefault();
@@ -32,7 +33,6 @@ export function LoginForm() {
 
     try {
       login({ email, password });
-      router.push("/dashboard");
     } catch (error) {
       setFormError(
         error instanceof Error ? error.message : "Erro ao fazer login."

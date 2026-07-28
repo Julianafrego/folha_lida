@@ -1,5 +1,4 @@
 //"use client";
-
 import { create } from "zustand";
 import { authService } from "@/services/auth.service";
 import type { AuthUser, LoginPayload, RegisterPayload } from "@/types/auth";
@@ -8,6 +7,8 @@ type AuthState = {
   user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+
   login: (data: LoginPayload) => void;
   register: (data: RegisterPayload) => void;
   logout: () => void;
@@ -18,6 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
+  isLoading: true,
 
   login: (data) => {
     const { token, user } = authService.login(data);
@@ -26,6 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
       token,
       isAuthenticated: true,
+      isLoading: false,
     });
   },
 
@@ -40,6 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+      isLoading: false,
     });
   },
 
@@ -52,6 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       token: isAuthenticated ? token : null,
       user: isAuthenticated ? user : null,
       isAuthenticated,
+      isLoading: false,
     });
   },
 }));
