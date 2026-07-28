@@ -18,6 +18,9 @@ export function BookDetailsSection({
 }: BookDetailsSectionProps) {
   const router = useRouter();
 
+  const inicioLeitura = book.startedAt.split('-').reverse().join('-');
+  const fimLeitura = book.finishedAt.split('-').reverse().join('-');
+
   return (
     <section className="bg-violet-50 p-8 lg:p-10">
       <div className="space-y-6">
@@ -70,6 +73,21 @@ export function BookDetailsSection({
             <p>
               <span className="font-semibold text-zinc-800">Estado:</span>{" "}
               {getReadingStatusLabel(book.status)}
+            </p>
+            <p>
+              <span className="font-semibold text-zinc-800">Páginas:</span> {book.totalPages}
+              </p>
+            <p>
+              <span className="font-semibold text-zinc-800">Nota:</span> {book.rating}/5
+            </p>
+            <p>
+              <span className="font-semibold text-zinc-800">Início:</span> {inicioLeitura || "Não informado"}
+            </p>
+            <p>
+              <span className="font-semibold text-zinc-800">Fim:</span> {fimLeitura || "Não informado"}
+            </p>
+            <p>
+              <span className="font-semibold text-zinc-800">Estado:</span> {getReadingStatusLabel(book.status)}
             </p>
           </div>
 
