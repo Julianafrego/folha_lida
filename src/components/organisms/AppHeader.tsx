@@ -39,7 +39,6 @@ export function AppHeader() {
               label="Dashboard"
               isActive={pathname === "/dashboard"}
             />
-
           </nav>
         </div>
 

@@ -33,7 +33,6 @@ export function getBooksByShelf(books: Book[], shelf: Shelf): Book[] {
   });
 }
 
-
 export function getShelfRuleLabel(rule: ShelfRule): string {
   if (rule.field === "genre") {
     return `Gênero: ${rule.value}`;
