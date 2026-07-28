@@ -239,6 +239,8 @@ export function BookForm({
             name="startedAt"
             label="Início da leitura"
             type="date"
+            max={new Date().toISOString().split("T")[0]}
+            min={"1920-01-01"}
             value={formData.startedAt}
             onChange={handleChange}
             className="bg-white"
@@ -249,6 +251,8 @@ export function BookForm({
             name="finishedAt"
             label="Fim da leitura"
             type="date"
+            max={new Date().toISOString().split("T")[0]}
+            min={formData.startedAt || "1920-01-01"}
             value={formData.finishedAt}
             onChange={handleChange}
             error={errors.finishedAt}
