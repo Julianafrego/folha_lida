@@ -128,6 +128,7 @@ export function ReadingNoteForm({
         name="page"
         label="Página"
         type="number"
+        max={7000}
         placeholder="Ex. 42"
         value={formData.page}
         onChange={handleChange}
