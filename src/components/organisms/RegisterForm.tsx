@@ -20,8 +20,10 @@ export function RegisterForm() {
   const handleSubmit: React.ComponentProps<"form">["onSubmit"] = (event) => {
     event.preventDefault();
     setFormError("");
-    if (name === "" || email === "" || password === "") {
+    if (name === "" || email === "" || password === "" || ConfirmPassword === "") {
       setFormError("Preencha todos os campos corretamente.");
+      return;
+    } else if (validarEmail(email).valido === false) {
       return;
     } else if (criteriosDeSenha(password).valido === false) {
       return;
@@ -40,7 +42,7 @@ export function RegisterForm() {
 
   function criteriosDeSenha(senha: string) {
     const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (regex.test(senha)) return { valido: true, texto: "" };
+    if (regex.test(senha) || senha === "")  return { valido: true, texto: "" };
     else
       return {
         valido: false,
@@ -53,6 +55,12 @@ export function RegisterForm() {
     console.log("Valores: " + senha + " " + confsenha);
     if (senha === confsenha) return { valido: true, texto: "" };
     else return { valido: false, texto: "Senha não confere!" };
+  }
+
+  function validarEmail(email: string) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (regex.test(email) || email === "") return { valido: true, texto: "" };
+    else return { valido: false, texto: "Email inválido!" };
   }
   
 
@@ -76,6 +84,11 @@ export function RegisterForm() {
         onChange={(event) => setEmail(event.target.value)}
       />
 
+      {validarEmail(email).valido === false ? (
+        <p className="text-sm text-red-600">{validarEmail(email).texto}</p>
+      ) : null
+      }
+
       <FormField
         id="password"
         label="Senha"
@@ -91,6 +104,11 @@ export function RegisterForm() {
         }}
       />
 
+      {criteriosDeSenha(password).valido === false ? (
+        <p className="text-sm text-red-600">{criteriosDeSenha(password).texto}</p>
+      ) : null
+      }
+
       <FormField
         id="confirmPassword"
         label="Confirmar Senha"
@@ -105,11 +123,6 @@ export function RegisterForm() {
           validarMesmaSenha(event.target.value, password);
         }}
       />
-
-      {criteriosDeSenha(password).valido === false ? (
-        <p className="text-sm text-red-600">{criteriosDeSenha(password).texto}</p>
-      ) : null
-      }
 
       {validarMesmaSenha(ConfirmPassword, password).valido === false ? (
         <p className="text-sm text-red-600">
