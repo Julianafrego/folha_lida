@@ -29,7 +29,6 @@ export default function ShelfRuleSection({
   formData,
   setFormData,
   existingGenres,
-  errors,
 }: Props) {
   return (
     <section className="grid grid-cols-1 gap-6 rounded-2xl bg-zinc-50 p-6 md:grid-cols-2">
@@ -94,10 +93,6 @@ export default function ShelfRuleSection({
           Ex.: gênero Drama + estado Finalizado com “todas” mostra apenas dramas finalizados. Com “qualquer”, mostra dramas ou livros finalizados
         </Label>
       </div>
-
-      {errors.rules && (
-        <p className="text-red-600">{errors.rules}</p>
-      )}
     </section>
   )
 }

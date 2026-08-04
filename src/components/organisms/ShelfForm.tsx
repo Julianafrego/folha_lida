@@ -188,15 +188,20 @@ export function ShelfForm({
 
       <ShelfModeSelector
         value={formData.mode}
-        onChange={(mode) =>
+        onChange={(mode) => {
           setFormData((prev) => ({
             ...prev,
             mode,
-            ...(mode === 'manual'
-              ? { genres: '', status: '' }
-              : { bookIds: [] }),
-          }))
-        }
+            ...(mode === 'manual' ? { genres: '', status: '' } : { bookIds: [] }),
+          }));
+
+          setErrors((prev) => ({
+            ...prev,
+            rules: undefined,
+          }));
+
+          setFormError("");
+        }}
       />
 
       {formData.mode === 'rule' && (
@@ -221,6 +226,10 @@ export function ShelfForm({
       {formError ? (
         <p className="text-sm font-medium text-red-600">{formError}</p>
       ) : null}
+
+      {errors.rules && (
+        <p className="text-red-600">{errors.rules}</p>
+      )}
 
       <footer className="flex justify-end border-t border-zinc-100 pt-6">
         <Button type="submit" variant="primary">
