@@ -29,7 +29,7 @@ export function FormField({
             : ""
         }`}
         {...props}
-        type="text"
+        type={props.type || "text"}
       />
 
       {error ? (

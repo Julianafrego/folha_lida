@@ -3,14 +3,12 @@
 import type { ReadingStatus } from "@/types/book";
 import { Button } from "@/components/atoms/Button";
 import { getReadingStatusLabel } from "@/utils/book";
-import type { Book } from "@/types/book";
 import type { Shelf } from "@/types/shelf";
 
 type ShelfCardProps = {
   shelf: Shelf;
   booksCount: number;
   onOpen: () => void;
-  books: Book[];
   onEdit: () => void;
   onDelete: () => void;
 };
