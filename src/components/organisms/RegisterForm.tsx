@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { FormField } from "@/components/molecules/FormField";
 import { useAuthStore } from "@/store/auth.store";
+import toast from "react-hot-toast";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export function RegisterForm() {
     } 
     try {
       register({ name, email, password });
+      toast.success('Cadastro realizado com sucesso!')
       router.push("/login");
     } catch (error) {
       setFormError(
