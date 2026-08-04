@@ -5,12 +5,14 @@ import { Label } from "@/components/atoms/Label";
 type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   error?: string;
+  maxLength?: number;
 };
 
 export function FormField({
   label,
   id,
   error,
+  maxLength,
   className = "",
   ...props
 }: FormFieldProps) {
@@ -20,12 +22,14 @@ export function FormField({
 
       <Input
         id={id}
+        maxLength={maxLength}
         className={`${className} ${
           error
             ? "ring-1 ring-red-300 focus:ring-red-300"
             : ""
         }`}
         {...props}
+        type="text"
       />
 
       {error ? (

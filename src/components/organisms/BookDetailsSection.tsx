@@ -55,28 +55,10 @@ export function BookDetailsSection({
               {book.totalPages}
             </p>
 
-            <p>
-              <span className="font-semibold text-zinc-800">Nota:</span>{" "}
-              {book.rating}/5
-            </p>
 
-            <p>
-              <span className="font-semibold text-zinc-800">Início:</span>{" "}
-              {book.startedAt || "Não informado"}
-            </p>
 
-            <p>
-              <span className="font-semibold text-zinc-800">Fim:</span>{" "}
-              {book.finishedAt || "Não informado"}
-            </p>
 
-            <p>
-              <span className="font-semibold text-zinc-800">Estado:</span>{" "}
-              {getReadingStatusLabel(book.status)}
-            </p>
-            <p>
-              <span className="font-semibold text-zinc-800">Páginas:</span> {book.totalPages}
-              </p>
+
             <p>
               <span className="font-semibold text-zinc-800">Nota:</span> {book.rating}/5
             </p>

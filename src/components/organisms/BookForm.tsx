@@ -201,7 +201,7 @@ export function BookForm({
               name="totalPages"
               label="Número de páginas"
               type="number"
-              max={7000}
+              maxLength={2}
               placeholder="Ex. 450"
               value={formData.totalPages}
               onChange={handleChange}
