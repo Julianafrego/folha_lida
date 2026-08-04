@@ -113,6 +113,10 @@ export function BookForm({
       newErrors.status = "Livro em leitura não deve ter data final.";
     }
 
+    if (formData.status === "finalizado" && !formData.finishedAt) {
+      newErrors.status = "Livro finalizado deve ter data final.";
+    }
+
     if (formData.startedAt && formData.finishedAt) {
       const startedDate = new Date(formData.startedAt).getTime();
       const finishedDate = new Date(formData.finishedAt).getTime();
